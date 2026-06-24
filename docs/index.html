@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smoke Break — Windows Tray Timer</title>
+  <meta name="description" content="Smoke Break is a compact Windows tray timer for managing break intervals with custom audio, fade-in playback, delay actions, and daily stats." />
+  <meta name="theme-color" content="#0b1020" />
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="orb orb-one" aria-hidden="true"></div>
+  <div class="orb orb-two" aria-hidden="true"></div>
+  <div class="smoke-layer" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Smoke Break home">
+      <img src="assets/logo.svg" alt="" class="brand-mark" />
+      <span>Smoke Break</span>
+    </a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="#features">Features</a>
+      <a href="#demo">Demo</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#download">Download</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero section-shell">
+      <div class="hero-copy reveal">
+        <p class="eyebrow">Windows tray timer · custom audio · daily stats</p>
+        <h1>Control your break intervals without opening a full app.</h1>
+        <p class="hero-text">
+          Smoke Break sits in your Windows tray, counts down quietly, then opens a compact popover with your selected audio reminder and simple choices: took break, skipped, or delay.
+        </p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#download">Get the app</a>
+          <a class="button button-secondary" href="#demo">Try the demo</a>
+        </div>
+        <div class="trust-row" aria-label="Highlights">
+          <span>No account</span>
+          <span>Local data</span>
+          <span>Portable settings</span>
+        </div>
+      </div>
+
+      <div class="app-card reveal" id="demo" aria-label="Interactive Smoke Break timer demo">
+        <div class="app-topbar">
+          <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+          <span class="app-title">Smoke Break</span>
+          <span class="tray-pill">Tray popover</span>
+        </div>
+
+        <div class="timer-wrap">
+          <svg class="timer-ring" viewBox="0 0 220 220" aria-hidden="true">
+            <circle class="ring-track" cx="110" cy="110" r="92"></circle>
+            <circle class="ring-progress" id="ringProgress" cx="110" cy="110" r="92"></circle>
+          </svg>
+          <div class="timer-center">
+            <span class="time" id="timeText">90:00</span>
+            <span class="state" id="stateText">Ready</span>
+          </div>
+        </div>
+
+        <div class="preset-row" role="group" aria-label="Timer presets">
+          <button class="chip" data-minutes="30">30m</button>
+          <button class="chip active" data-minutes="90">90m</button>
+          <button class="chip" data-minutes="120">120m</button>
+        </div>
+
+        <div class="control-row">
+          <button class="control primary" id="startPauseBtn">Start</button>
+          <button class="control" id="resetBtn">Reset</button>
+        </div>
+
+        <div class="finished-panel" id="finishedPanel" hidden>
+          <p>Break timer ended.</p>
+          <div class="finished-actions">
+            <button data-action="took">Took Break</button>
+            <button data-action="skipped">Skipped</button>
+            <button data-action="delay">Delay 5m</button>
+          </div>
+        </div>
+
+        <div class="stats-grid" aria-label="Demo stats">
+          <div><strong id="tookCount">0</strong><span>Took</span></div>
+          <div><strong id="skipCount">0</strong><span>Skipped</span></div>
+          <div><strong id="delayCount">0</strong><span>Delayed</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-shell feature-section" id="features">
+      <div class="section-heading reveal">
+        <p class="eyebrow">Built for quick use</p>
+        <h2>Small app, practical controls.</h2>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card reveal">
+          <span class="icon-badge">◷</span>
+          <h3>Tray-first timer</h3>
+          <p>Click the tray icon, adjust the timer, and hide it again. The app stays out of the way.</p>
+        </article>
+        <article class="feature-card reveal">
+          <span class="icon-badge">♪</span>
+          <h3>Custom audio</h3>
+          <p>Pick your own MP3 or WAV reminder. Smooth fade-in prevents the audio from starting abruptly.</p>
+        </article>
+        <article class="feature-card reveal">
+          <span class="icon-badge">↺</span>
+          <h3>Delay or skip</h3>
+          <p>When the timer ends, choose what happened: took break, skipped, or delayed the reminder.</p>
+        </article>
+        <article class="feature-card reveal">
+          <span class="icon-badge">▣</span>
+          <h3>Local stats</h3>
+          <p>Track simple daily counts without accounts, cloud sync, analytics, or network features.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section-shell split-section" id="privacy">
+      <div class="glass-panel reveal">
+        <p class="eyebrow">Local by default</p>
+        <h2>Your timer data stays on your PC.</h2>
+        <p>
+          Settings and daily stats are stored as local JSON files. The app is designed as a lightweight desktop utility, not an online service.
+        </p>
+      </div>
+      <div class="terminal-card reveal" aria-label="Local files example">
+        <div class="terminal-header"><span></span><span></span><span></span></div>
+        <pre><code>data/settings.json
+assets/icon.ico
+app/audio_controller.py
+app/timer_controller.py</code></pre>
+      </div>
+    </section>
+
+    <section class="section-shell download-section" id="download">
+      <div class="download-card reveal">
+        <img src="assets/logo.svg" alt="Smoke Break app logo" />
+        <div>
+          <p class="eyebrow">Windows app</p>
+          <h2>Download Smoke Break</h2>
+          <p>
+            Add your GitHub Releases link to the button below when your first `.exe` build is ready.
+          </p>
+        </div>
+        <a class="button button-primary" href="https://github.com/" id="downloadBtn">GitHub Releases</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>Smoke Break</span>
+    <span>Local Windows tray timer.</span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
