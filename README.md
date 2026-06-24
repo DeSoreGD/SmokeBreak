@@ -1,3 +1,4 @@
+
 # Smoke Break
 
 **Smoke Break** is a small Windows tray timer for managing smoke break intervals with custom audio reminders, smooth fade-in playback, and simple daily break stats.
@@ -24,7 +25,8 @@ It runs quietly in the system tray, opens as a compact popover near the tray are
 
 ## Screenshots
 
-Screenshots will be added later.
+<img width="430" height="700" alt="Smoke_Break_7w4bW36kDq" src="https://github.com/user-attachments/assets/ad6eee4d-df1e-4df8-99e0-855ffeecb44a" />
+<img width="430" height="700" alt="Smoke_Break_JyRm2ptA2k" src="https://github.com/user-attachments/assets/04fe1f7d-87d7-4b03-b76e-fb5f42b563ef" />
 
 ## Requirements
 
