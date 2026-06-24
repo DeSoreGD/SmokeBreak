@@ -25,8 +25,7 @@ It runs quietly in the system tray, opens as a compact popover near the tray are
 
 ## Screenshots
 
-<img width="430" height="700" alt="Smoke_Break_7w4bW36kDq" src="https://github.com/user-attachments/assets/ad6eee4d-df1e-4df8-99e0-855ffeecb44a" /><img width="430" height="700" alt="Smoke_Break_JyRm2ptA2k" src="https://github.com/user-attachments/assets/04fe1f7d-87d7-4b03-b76e-fb5f42b563ef" /><img width="430" height="700" alt="image" src="https://github.com/user-attachments/assets/7a77f273-6348-4198-b1a3-b95e28971d37" />
-
+<img width="430" height="700" alt="Smoke_Break_7w4bW36kDq" src="https://github.com/user-attachments/assets/ad6eee4d-df1e-4df8-99e0-855ffeecb44a" /><img width="430" height="700" alt="Smoke_Break_JyRm2ptA2k" src="https://github.com/user-attachments/assets/04fe1f7d-87d7-4b03-b76e-fb5f42b563ef" /><img width="430" height="700" alt="image" src="https://github.com/user-attachments/assets/7a77f273-6348-4198-b1a3-b95e28971d37" /><img width="380" height="214" alt="image" src="https://github.com/user-attachments/assets/67d871db-7eac-4e22-9688-22331f17fb87" />
 
 ## Requirements
 
