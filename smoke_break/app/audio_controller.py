@@ -21,6 +21,9 @@ class AudioController(QObject):
         self.fade_timer = QTimer(self)
         self.fade_timer.setInterval(100)
         self.fade_timer.timeout.connect(self._fade_step)
+        self.fade_out_timer = QTimer(self)
+        self.fade_out_timer.setInterval(50)
+        self.fade_out_timer.timeout.connect(self._fade_out_step)
         self.duration_timer = QTimer(self)
         self.duration_timer.setSingleShot(True)
         self.duration_timer.timeout.connect(self.stop)
@@ -28,6 +31,9 @@ class AudioController(QObject):
         self.target_volume = 0.7
         self.fade_ms = 3000
         self.fade_elapsed_ms = 0
+        self.fade_out_elapsed_ms = 0
+        self.fade_out_start_volume = 0.0
+        self.fade_out_ms = 700
 
     def play(self, path_text: str, settings: dict) -> bool:
         path = Path(path_text)
@@ -38,7 +44,7 @@ class AudioController(QObject):
             self.error.emit("Selected audio file is missing. Choose a new file in Settings.")
             return False
 
-        self.stop()
+        self.stop(immediate=True)
         self.target_volume = max(0, min(100, int(settings.get("volume", 70)))) / 100
         fade_enabled = bool(settings.get("fade_in_enabled", True))
         self.fade_ms = max(0, int(settings.get("fade_in_seconds", 3))) * 1000
@@ -57,9 +63,18 @@ class AudioController(QObject):
             self.duration_timer.start(minutes * 60 * 1000)
         return True
 
-    def stop(self) -> None:
+    def stop(self, immediate: bool = False) -> None:
         self.fade_timer.stop()
         self.duration_timer.stop()
+        if not immediate and self.player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
+            self.fade_out_elapsed_ms = 0
+            self.fade_out_start_volume = self.output.volume()
+            self.fade_out_timer.start()
+            return
+        self.fade_out_timer.stop()
+        self._finish_stop()
+
+    def _finish_stop(self) -> None:
         self.player.stop()
         self.output.setVolume(self.target_volume)
         self.state_changed.emit(False)
@@ -83,9 +98,17 @@ class AudioController(QObject):
         if ratio >= 1.0:
             self.fade_timer.stop()
 
+    def _fade_out_step(self) -> None:
+        self.fade_out_elapsed_ms += self.fade_out_timer.interval()
+        ratio = min(1.0, self.fade_out_elapsed_ms / self.fade_out_ms)
+        self.output.setVolume(self.fade_out_start_volume * (1.0 - ratio))
+        if ratio >= 1.0:
+            self.fade_out_timer.stop()
+            self._finish_stop()
+
     def _on_error(self, _error, error_string: str) -> None:
         self.error.emit(error_string or "Audio playback failed.")
-        self.stop()
+        self.stop(immediate=True)
 
     def _on_playback_state_changed(self, state) -> None:
         self.state_changed.emit(state == QMediaPlayer.PlaybackState.PlayingState)

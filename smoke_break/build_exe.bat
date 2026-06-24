@@ -15,8 +15,13 @@ if not exist ".venv\Scripts\python.exe" (
 ".venv\Scripts\python.exe" -m pip install --upgrade pip
 ".venv\Scripts\python.exe" -m pip install -r requirements.txt
 
+set "ICON_PATH=%CD%\assets\icon.ico"
+if exist "dist\Smoke Break.exe" (
+  del /f /q "dist\Smoke Break.exe"
+)
+
 if exist "assets\icon.ico" (
-  ".venv\Scripts\pyinstaller.exe" --noconfirm --clean --onefile --windowed --name "Smoke Break" --icon "assets\icon.ico" --add-data "assets;assets" main.py
+  ".venv\Scripts\pyinstaller.exe" --noconfirm --clean --onefile --windowed --name "Smoke Break" --icon "%ICON_PATH%" --add-data "assets;assets" main.py
 ) else (
   echo assets\icon.ico not found; building without a custom icon.
   ".venv\Scripts\pyinstaller.exe" --noconfirm --clean --onefile --windowed --name "Smoke Break" --add-data "assets;assets" main.py

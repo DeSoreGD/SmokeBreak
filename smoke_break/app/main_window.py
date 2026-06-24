@@ -667,7 +667,7 @@ class MainWindow(QMainWindow):
 
     def quit_app(self) -> None:
         self._quitting = True
-        self.audio.stop()
+        self.audio.stop(immediate=True)
         self.break_popup.hide()
         self.tray.hide()
         QApplication.quit()

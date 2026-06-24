@@ -24,34 +24,37 @@ class BreakNotificationPopup(QWidget):
         super().__init__()
         self.setWindowTitle("Smoke Break")
         self.setWindowIcon(app_icon())
-        self.setFixedSize(390, 220)
+        self.setFixedSize(380, 214)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
         self.setWindowFlags(
             Qt.WindowType.Tool
             | Qt.WindowType.FramelessWindowHint
             | Qt.WindowType.WindowStaysOnTopHint
+            | Qt.WindowType.NoDropShadowWindowHint
         )
         self.setStyleSheet(STYLE)
 
         root = QVBoxLayout(self)
-        root.setContentsMargins(12, 12, 12, 12)
-        root.setSpacing(10)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
 
         card = QFrame()
         card.setObjectName("PopupCard")
         card_layout = QVBoxLayout(card)
-        card_layout.setContentsMargins(12, 12, 12, 12)
-        card_layout.setSpacing(10)
+        card_layout.setContentsMargins(14, 14, 14, 14)
+        card_layout.setSpacing(12)
         root.addWidget(card)
 
         top = QHBoxLayout()
-        top.setSpacing(12)
+        top.setSpacing(14)
         self.image = QLabel()
         self.image.setObjectName("CoverImage")
-        self.image.setFixedSize(82, 82)
+        self.image.setFixedSize(86, 86)
         self.image.setAlignment(Qt.AlignmentFlag.AlignCenter)
         top.addWidget(self.image)
 
         text_col = QVBoxLayout()
+        text_col.setSpacing(7)
         title = QLabel("Break timer ended")
         title.setObjectName("PopupTitle")
         subtitle = QLabel("Take a break?")
@@ -67,8 +70,8 @@ class BreakNotificationPopup(QWidget):
         card_layout.addLayout(top)
 
         actions = QGridLayout()
-        actions.setHorizontalSpacing(8)
-        actions.setVerticalSpacing(8)
+        actions.setHorizontalSpacing(10)
+        actions.setVerticalSpacing(9)
         buttons = [
             ("Took Break", took_break, ""),
             ("Skipped", skipped, "SecondaryButton"),
@@ -81,7 +84,10 @@ class BreakNotificationPopup(QWidget):
             if object_name:
                 button.setObjectName(object_name)
             button.clicked.connect(callback)
-            actions.addWidget(button, index // 3, index % 3)
+            if index < 4:
+                actions.addWidget(button, index // 2, index % 2)
+            else:
+                actions.addWidget(button, 2, 0, 1, 2)
         card_layout.addLayout(actions)
 
     def show_for_settings(self, settings: dict) -> None:
@@ -128,7 +134,7 @@ QWidget {
 #PopupCard {
     background: #101a26;
     border: 1px solid #304057;
-    border-radius: 10px;
+    border-radius: 12px;
 }
 #CoverImage {
     background: #0b121b;
@@ -150,7 +156,7 @@ QPushButton {
     border-radius: 7px;
     color: #f6fbff;
     font-weight: 700;
-    min-height: 30px;
+    min-height: 32px;
     padding: 0 10px;
 }
 QPushButton:hover {
