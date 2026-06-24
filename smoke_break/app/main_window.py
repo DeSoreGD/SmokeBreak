@@ -16,6 +16,8 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QMessageBox,
     QPushButton,
+    QAbstractSpinBox,
+    QScrollArea,
     QSlider,
     QSpinBox,
     QStackedWidget,
@@ -50,7 +52,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Smoke Break")
         self.setWindowIcon(app_icon())
-        self.setFixedSize(370, 580)
+        self.setFixedSize(430, 700)
         self.apply_window_flags()
         self.build_ui()
         self.load_settings_into_controls()
@@ -90,8 +92,8 @@ class MainWindow(QMainWindow):
 
         content = QWidget()
         content_layout = QVBoxLayout(content)
-        content_layout.setContentsMargins(18, 16, 18, 18)
-        content_layout.setSpacing(12)
+        content_layout.setContentsMargins(20, 16, 20, 20)
+        content_layout.setSpacing(14)
         layout.addWidget(content, 1)
 
         header = QHBoxLayout()
@@ -146,8 +148,8 @@ class MainWindow(QMainWindow):
     def build_main_page(self) -> None:
         page = QWidget()
         page_layout = QVBoxLayout(page)
-        page_layout.setContentsMargins(0, 4, 0, 0)
-        page_layout.setSpacing(12)
+        page_layout.setContentsMargins(0, 0, 0, 0)
+        page_layout.setSpacing(10)
 
         self.notice_label = QLabel("")
         self.notice_label.setObjectName("Notice")
@@ -253,17 +255,25 @@ class MainWindow(QMainWindow):
 
     def build_settings_page(self) -> None:
         page = QWidget()
-        layout = QVBoxLayout(page)
-        layout.setContentsMargins(0, 4, 0, 0)
-        layout.setSpacing(10)
+        page_layout = QVBoxLayout(page)
+        page_layout.setContentsMargins(0, 0, 0, 0)
+        page_layout.setSpacing(10)
 
         title = QLabel("Settings")
         title.setObjectName("SectionTitle")
-        layout.addWidget(title)
+        page_layout.addWidget(title)
 
-        form = QGridLayout()
-        form.setHorizontalSpacing(10)
-        form.setVerticalSpacing(8)
+        scroll = QScrollArea()
+        scroll.setObjectName("SettingsScroll")
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+
+        body = QWidget()
+        layout = QVBoxLayout(body)
+        layout.setContentsMargins(0, 0, 2, 0)
+        layout.setSpacing(12)
+
         self.default_minutes = spin_box(1, 1440, " min")
         self.short_minutes = spin_box(1, 1440, " min")
         self.normal_minutes = spin_box(1, 1440, " min")
@@ -276,41 +286,30 @@ class MainWindow(QMainWindow):
         self.play_mode.addItem("Play for duration", "play_for_duration")
         self.play_duration = spin_box(1, 180, " min")
         self.daily_limit = spin_box(1, 99, "")
-        for widget in [
-            self.default_minutes,
-            self.short_minutes,
-            self.normal_minutes,
-            self.long_minutes,
-            self.fade_seconds,
-            self.play_duration,
-            self.daily_limit,
-        ]:
-            widget.setFixedWidth(126)
-
-        rows = [
-            ("Default timer", self.default_minutes),
-            ("Short preset", self.short_minutes),
-            ("Normal preset", self.normal_minutes),
-            ("Long preset", self.long_minutes),
-            ("Volume", self.volume_slider),
-            ("Fade seconds", self.fade_seconds),
-            ("Play mode", self.play_mode),
-            ("Play duration", self.play_duration),
-            ("Limit count", self.daily_limit),
-        ]
-        for row, (label_text, widget) in enumerate(rows):
-            label = QLabel(label_text)
-            label.setObjectName("FormLabel")
-            form.addWidget(label, row, 0)
-            form.addWidget(widget, row, 1)
-        layout.addLayout(form)
-
         self.fade_enabled = QCheckBox("Fade in")
         self.daily_limit_enabled = QCheckBox("Daily limit")
         self.fade_enabled.stateChanged.connect(self.save_settings_from_controls)
         self.daily_limit_enabled.stateChanged.connect(self.save_settings_from_controls)
-        layout.addWidget(self.fade_enabled)
-        layout.addWidget(self.daily_limit_enabled)
+
+        timer_card, timer_form = self.settings_card("Timer")
+        add_setting_row(timer_form, "Default", self.default_minutes)
+        add_setting_row(timer_form, "Short", self.short_minutes)
+        add_setting_row(timer_form, "Normal", self.normal_minutes)
+        add_setting_row(timer_form, "Long", self.long_minutes)
+        layout.addWidget(timer_card)
+
+        audio_card, audio_form = self.settings_card("Audio")
+        add_setting_row(audio_form, "Volume", self.volume_slider)
+        add_setting_row(audio_form, "Fade seconds", self.fade_seconds)
+        add_setting_row(audio_form, "Play mode", self.play_mode)
+        add_setting_row(audio_form, "Duration", self.play_duration)
+        audio_form.addWidget(self.fade_enabled)
+        layout.addWidget(audio_card)
+
+        tracking_card, tracking_form = self.settings_card("Tracking")
+        add_setting_row(tracking_form, "Limit count", self.daily_limit)
+        tracking_form.addWidget(self.daily_limit_enabled)
+        layout.addWidget(tracking_card)
 
         choose_audio = QPushButton("Choose Audio")
         choose_audio.clicked.connect(self.choose_audio)
@@ -325,6 +324,9 @@ class MainWindow(QMainWindow):
         reset.clicked.connect(self.reset_settings)
         layout.addWidget(reset)
         layout.addStretch(1)
+
+        scroll.setWidget(body)
+        page_layout.addWidget(scroll, 1)
 
         for widget in [
             self.default_minutes,
@@ -344,6 +346,17 @@ class MainWindow(QMainWindow):
 
         self.settings_page = page
         self.pages.addWidget(page)
+
+    def settings_card(self, title_text: str) -> tuple[QFrame, QVBoxLayout]:
+        card = QFrame()
+        card.setObjectName("SettingsCard")
+        layout = QVBoxLayout(card)
+        layout.setContentsMargins(14, 12, 14, 14)
+        layout.setSpacing(10)
+        title = QLabel(title_text)
+        title.setObjectName("CardTitle")
+        layout.addWidget(title)
+        return card, layout
 
     def load_settings_into_controls(self) -> None:
         self._loading_settings = True
@@ -625,12 +638,38 @@ def spin_box(minimum: int, maximum: int, suffix: str) -> QSpinBox:
     box = QSpinBox()
     box.setRange(minimum, maximum)
     box.setSuffix(suffix)
+    box.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+    box.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+    box.setMinimumWidth(176)
     return box
+
+
+def add_setting_row(layout: QVBoxLayout, label_text: str, widget: QWidget) -> None:
+    row = QFrame()
+    row.setObjectName("SettingRow")
+    row_layout = QHBoxLayout(row)
+    row_layout.setContentsMargins(0, 0, 0, 0)
+    row_layout.setSpacing(14)
+    label = QLabel(label_text)
+    label.setObjectName("FormLabel")
+    label.setFixedWidth(116)
+    label.setMinimumHeight(38)
+    widget.setMinimumHeight(38)
+    row_layout.addWidget(label)
+    row_layout.addWidget(widget, 1)
+    layout.addWidget(row)
 
 
 STYLE = """
 QMainWindow {
     background: #0d141d;
+}
+#SettingsScroll {
+    background: transparent;
+    border: 0;
+}
+#SettingsScroll QWidget {
+    background: transparent;
 }
 #TitleBar {
     background: #121d29;
@@ -669,6 +708,20 @@ QWidget {
     background: #121d29;
     border: 1px solid #273343;
     border-radius: 8px;
+}
+#SettingsCard {
+    background: #101a26;
+    border: 1px solid #263343;
+    border-radius: 8px;
+}
+#SettingRow {
+    background: transparent;
+    min-height: 40px;
+}
+#CardTitle {
+    color: #edf5ff;
+    font-size: 12px;
+    font-weight: 700;
 }
 #FormLabel {
     color: #97a8ba;
@@ -738,11 +791,11 @@ QComboBox, QSpinBox {
     background: #121d29;
     border: 1px solid #2d3b4f;
     border-radius: 6px;
-    min-height: 30px;
-    padding: 2px 8px;
+    min-height: 36px;
+    padding: 0 10px;
 }
 QComboBox::drop-down {
-    width: 24px;
+    width: 26px;
     border: 0;
 }
 QComboBox QAbstractItemView {
@@ -759,7 +812,8 @@ QComboBox QAbstractItemView::item {
 }
 QCheckBox {
     color: #dce5ef;
-    min-height: 24px;
+    min-height: 30px;
+    padding-top: 2px;
 }
 QCheckBox::indicator {
     width: 16px;
@@ -775,6 +829,19 @@ QSlider::handle:horizontal {
     width: 16px;
     margin: -5px 0;
     border-radius: 8px;
+}
+QScrollBar:vertical {
+    background: transparent;
+    width: 8px;
+    margin: 2px 0;
+}
+QScrollBar::handle:vertical {
+    background: #2d3b4f;
+    border-radius: 4px;
+    min-height: 28px;
+}
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0;
 }
 QMenu {
     background: #121d29;
