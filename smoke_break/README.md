@@ -8,6 +8,8 @@ Smoke Break is a small Windows tray app for neutral break timing, audio reminder
 - Compact dark popover window near the tray icon, with bottom-right fallback.
 - Custom dark title bar with explicit Hide to tray control.
 - Countdown timer with Short, Normal, Long, and Custom durations.
+- Small custom popup when the timer ends, separate from the main app window.
+- Popup image can come from embedded audio artwork, a user-selected image, or the bundled default image.
 - Pause, resume, reset, restart, and delay actions.
 - Custom audio playback through QtMultimedia.
 - Long audio support, optional fade-in, and optional play-for-duration mode.

@@ -16,10 +16,10 @@ if not exist ".venv\Scripts\python.exe" (
 ".venv\Scripts\python.exe" -m pip install -r requirements.txt
 
 if exist "assets\icon.ico" (
-  ".venv\Scripts\pyinstaller.exe" --noconfirm --onefile --windowed --name "Smoke Break" --icon "assets\icon.ico" --add-data "assets;assets" main.py
+  ".venv\Scripts\pyinstaller.exe" --noconfirm --clean --onefile --windowed --name "Smoke Break" --icon "assets\icon.ico" --add-data "assets;assets" main.py
 ) else (
   echo assets\icon.ico not found; building without a custom icon.
-  ".venv\Scripts\pyinstaller.exe" --noconfirm --onefile --windowed --name "Smoke Break" main.py
+  ".venv\Scripts\pyinstaller.exe" --noconfirm --clean --onefile --windowed --name "Smoke Break" --add-data "assets;assets" main.py
 )
 
 endlocal

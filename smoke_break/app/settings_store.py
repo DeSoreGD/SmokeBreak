@@ -16,6 +16,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
         "long": 120,
     },
     "selected_audio_path": "",
+    "selected_notification_image_path": "",
     "volume": 70,
     "fade_in_enabled": True,
     "fade_in_seconds": 3,
@@ -84,6 +85,7 @@ class SettingsStore:
         data["start_minimized_to_tray"] = bool(data.get("start_minimized_to_tray", False))
         data["always_on_top"] = bool(data.get("always_on_top", True))
         data["selected_audio_path"] = str(data.get("selected_audio_path", ""))
+        data["selected_notification_image_path"] = str(data.get("selected_notification_image_path", ""))
         return data
 
     def save(self) -> None:

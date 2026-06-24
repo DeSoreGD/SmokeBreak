@@ -26,6 +26,7 @@ from PySide6.QtWidgets import (
 )
 
 from app.audio_controller import AudioController
+from app.notification_popup import BreakNotificationPopup
 from app.resources import app_icon
 from app.settings_store import SettingsStore
 from app.stats_store import StatsStore
@@ -35,6 +36,7 @@ from app.widgets.circular_timer import CircularTimer
 
 
 SUPPORTED_AUDIO_FILTER = "Audio Files (*.mp3 *.wav *.m4a *.ogg);;All Files (*.*)"
+SUPPORTED_IMAGE_FILTER = "Image Files (*.png *.jpg *.jpeg *.webp *.bmp);;All Files (*.*)"
 
 
 class MainWindow(QMainWindow):
@@ -45,6 +47,14 @@ class MainWindow(QMainWindow):
         self.stats_store = StatsStore(settings_store.path.parent)
         self.timer = TimerController()
         self.audio = AudioController()
+        self.break_popup = BreakNotificationPopup(
+            self.mark_took_break,
+            self.mark_skipped,
+            lambda: self.delay_timer(5),
+            lambda: self.delay_timer(10),
+            self.stop_audio,
+            self.show_popover,
+        )
         self._quitting = False
         self._loading_settings = False
         self._drag_offset: QPoint | None = None
@@ -319,6 +329,15 @@ class MainWindow(QMainWindow):
         self.audio_path_label.setWordWrap(True)
         layout.addWidget(self.audio_path_label)
 
+        choose_image = QPushButton("Choose Popup Image")
+        choose_image.setObjectName("SecondaryButton")
+        choose_image.clicked.connect(self.choose_notification_image)
+        layout.addWidget(choose_image)
+        self.notification_image_path_label = QLabel("Using audio artwork or default image")
+        self.notification_image_path_label.setObjectName("PathLabel")
+        self.notification_image_path_label.setWordWrap(True)
+        layout.addWidget(self.notification_image_path_label)
+
         reset = QPushButton("Reset Settings")
         reset.setObjectName("SecondaryButton")
         reset.clicked.connect(self.reset_settings)
@@ -375,6 +394,7 @@ class MainWindow(QMainWindow):
         self.preset_combo.setCurrentIndex(1)
         self._loading_settings = False
         self.update_audio_path_label()
+        self.update_notification_image_path_label()
 
     def save_settings_from_controls(self) -> None:
         if self._loading_settings:
@@ -397,6 +417,7 @@ class MainWindow(QMainWindow):
         self.update_stats()
 
     def start_timer(self) -> None:
+        self.break_popup.hide()
         self.stop_audio()
         self.set_notice("")
         self.finished_message.setText("")
@@ -411,6 +432,7 @@ class MainWindow(QMainWindow):
             self.timer.resume()
 
     def reset_timer(self) -> None:
+        self.break_popup.hide()
         self.stop_audio()
         self.set_notice("")
         self.finished_message.setText("")
@@ -418,6 +440,7 @@ class MainWindow(QMainWindow):
         self.pages.setCurrentWidget(self.main_page)
 
     def delay_timer(self, minutes: int) -> None:
+        self.break_popup.hide()
         self.stop_audio()
         self.stats_store.increment("delay_count")
         self.update_stats()
@@ -426,6 +449,7 @@ class MainWindow(QMainWindow):
         self.pages.setCurrentWidget(self.main_page)
 
     def mark_took_break(self) -> None:
+        self.break_popup.hide()
         self.stop_audio()
         self.stats_store.increment("took_break_count")
         self.update_stats()
@@ -434,6 +458,7 @@ class MainWindow(QMainWindow):
         self.pages.setCurrentWidget(self.main_page)
 
     def mark_skipped(self) -> None:
+        self.break_popup.hide()
         self.stop_audio()
         self.stats_store.increment("skipped_count")
         self.update_stats()
@@ -456,6 +481,14 @@ class MainWindow(QMainWindow):
         self.update_audio_path_label()
         self.finished_message.setText("")
         self.set_notice("")
+
+    def choose_notification_image(self) -> None:
+        path, _ = QFileDialog.getOpenFileName(self, "Choose popup image", "", SUPPORTED_IMAGE_FILTER)
+        if not path:
+            return
+        self.settings["selected_notification_image_path"] = path
+        self.settings_store.save()
+        self.update_notification_image_path_label()
 
     def reset_settings(self) -> None:
         response = QMessageBox.question(self, "Smoke Break", "Reset settings to defaults?")
@@ -501,10 +534,10 @@ class MainWindow(QMainWindow):
     def on_timer_finished(self) -> None:
         self.current_state = TimerState.FINISHED.value
         self.pages.setCurrentWidget(self.finished_page)
-        self.show_popover()
         if self.audio.play(self.settings.get("selected_audio_path", ""), self.settings):
             self.current_state = "Audio Playing"
             self.finished_ring.set_values(0, max(1, self.timer.duration_seconds), "Audio Playing")
+        self.break_popup.show_for_settings(self.settings)
         self.update_state_buttons()
 
     def on_audio_state_changed(self, playing: bool) -> None:
@@ -544,6 +577,10 @@ class MainWindow(QMainWindow):
         path = self.settings.get("selected_audio_path", "")
         self.audio_path_label.setText(path if path else "No audio selected")
 
+    def update_notification_image_path_label(self) -> None:
+        path = self.settings.get("selected_notification_image_path", "")
+        self.notification_image_path_label.setText(path if path else "Using audio artwork or default image")
+
     def set_notice(self, text: str) -> None:
         self.notice_label.setText(text)
 
@@ -575,6 +612,7 @@ class MainWindow(QMainWindow):
             self.show_popover()
 
     def show_popover(self) -> None:
+        self.break_popup.hide()
         self.position_near_tray()
         self.show()
         self.raise_()
@@ -630,6 +668,7 @@ class MainWindow(QMainWindow):
     def quit_app(self) -> None:
         self._quitting = True
         self.audio.stop()
+        self.break_popup.hide()
         self.tray.hide()
         QApplication.quit()
 

@@ -6,6 +6,7 @@
     "long": 120
   },
   "selected_audio_path": "",
+  "selected_notification_image_path": "",
   "volume": 70,
   "fade_in_enabled": true,
   "fade_in_seconds": 3,
