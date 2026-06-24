@@ -1,1 +1,0 @@
-"""Smoke Break application package."""
