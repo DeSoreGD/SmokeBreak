@@ -25,7 +25,7 @@ Smoke Break is a small Windows tray app for neutral break timing, audio reminder
 ## Run From Source
 
 ```bat
-cd /d "D:\Smoke Break\smoke_break"
+cd "C:\*your path*\Smoke Break\smoke_break"
 python -m venv .venv
 ".venv\Scripts\python.exe" -m pip install --upgrade pip
 ".venv\Scripts\python.exe" -m pip install -r requirements.txt
@@ -35,7 +35,7 @@ python -m venv .venv
 ## Build Exe
 
 ```bat
-cd /d "D:\Smoke Break\smoke_break"
+cd "C:\*your path*\Smoke Break\smoke_break"
 build_exe.bat
 ```
 
